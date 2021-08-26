@@ -1,8 +1,8 @@
-# HDFS Offline FSImage XML Viewer
+# HDFS Offline FSImage Viewer
 
 ## Introduction
 
-HDFS Offline FSImage XML Viewer is a GUI program to view Hadoop HDFS offline FSImage XML file. The program is written by Tcl language.
+HDFS Offline FSImage Viewer is a GUI program to view Hadoop HDFS offline FSImage XML file. The program is written by Tcl language.
 
 ## Design Scope
 
