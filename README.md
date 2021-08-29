@@ -35,7 +35,7 @@ The current code is tested and passed in the following environment:
 
 ## Known Performance Issue
 
-1. The table list widget uses the **[tablelist](https://www.nemethi.de/tablelist/)** which is a pure Tcl implementation. So it would be extreme slow for scrolling and big memory usage when showing huge amount of columns.
+1. The table list widget uses the **[tablelist](https://www.nemethi.de/tablelist/)** which is a pure Tcl implementation. So it would be extremely slow for scrolling and big memory usage when showing huge amount of columns.
 
 ## Screenshots
 
