@@ -45,7 +45,7 @@ The current code is tested and passed in the following environment:
 
 ## TODO
 
-1. Make each labelframe area size-tunable.
+1. ~~Make each labelframe area size-tunable.~~
 2. Add progress status update in the UI when triggering events.
 3. Add feature to load HDFS FSImage file directly. This needs local Java + Hadoop installation.
 4. Add feature to search particular entry in the **INode Details Section**.
