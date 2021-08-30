@@ -1,3 +1,7 @@
+alpha-0.0.3 08-29-2021
+=========================
+add block information columns in tablelist
+
 alpha-0.0.2 08-28-2021
 =========================
 add panedwindow widget to resize inner widgets(labelframes)

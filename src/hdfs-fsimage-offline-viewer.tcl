@@ -20,6 +20,16 @@ proc entry_insert {entry_name value} {
 	$entry_name configure -state readonly -readonlybackground white
 }
 
+# status insert proc
+proc status_insert {widget status_flag status_message} {
+    set status_colors [dict create "ok" "green" "warning" "yellow" "error" "red"]
+
+    $widget configure -state normal
+    $widget delete 0 end
+    $widget insert end $status_message
+    $widget configure -state readonly -readonlybackground white -foreground [dict get $status_colors $status_flag]
+}
+
 # load fsimage XML file and return the DOM object
 proc get_xml_dom {fsimage_xml_file} {
     set fsimage_xml_fd [open $fsimage_xml_file r]
@@ -39,6 +49,7 @@ proc get_fsimage_xml_file_path {} {
 
     return $fsimage_xml_file_path
 }
+
 ####################
 # GLOBAL PROCS END #
 ####################
@@ -185,7 +196,7 @@ proc load_fsimage_inode_details_ui {fsimage_dom_root} {
     labelframe .pw.inode_detail -text "INode Details Section" -labelanchor n
 
     # set up tablelist
-    tablelist::tablelist .pw.inode_detail.tablelist -columns {0 "ID" 0 "Name" 0 "Type" 0 "Modification Time" 0 "Access Time" 0 "Permission" 0 "Name Quota" 0 "Space Quota" 0 "Replication" 0 "Preferred Block Size" 0 "Storage Policy ID"} -showseparators yes -selectbackground cyan -stripebackground #f0f0f0 -movablecolumns yes -xscrollcommand [list .pw.inode_detail.horizontal_sb set] -yscrollcommand [list .pw.inode_detail.vertical_sb set]
+    tablelist::tablelist .pw.inode_detail.tablelist -columns {0 "ID" 0 "Name" 0 "Type" 0 "Modification Time" 0 "Access Time" 0 "Permission" 0 "Name Quota" 0 "Space Quota" 0 "Replication" 0 "Preferred Block Size" 0 "Storage Policy ID" 0 "Block ID" 0 "Block GenStamp" 0 "Block Bytes"} -showseparators yes -selectbackground cyan -stripebackground #f0f0f0 -movablecolumns yes -xscrollcommand [list .pw.inode_detail.horizontal_sb set] -yscrollcommand [list .pw.inode_detail.vertical_sb set]
 
     scrollbar .pw.inode_detail.horizontal_sb -orient horizontal -command [list .pw.inode_detail.tablelist xview]
     scrollbar .pw.inode_detail.vertical_sb -orient vertical -command [list .pw.inode_detail.tablelist yview]
@@ -203,6 +214,7 @@ proc load_fsimage_inode_details_ui {fsimage_dom_root} {
     set inodes_dom [lrange [[$fsimage_dom_root selectNodes /fsimage/INodeSection] childNodes] 2 end]
 
     # fill out inode details
+
     foreach inode_dom $inodes_dom {
         set inode {}
 
@@ -214,11 +226,21 @@ proc load_fsimage_inode_details_ui {fsimage_dom_root} {
             lappend inode [set inode_$inode_element]
         }
 
-        #puts $inode
-        lappend inodes $inode
+        # handle blocks information and insert data into tablelist
+        if {[$inode_dom selectNodes ./blocks] != ""} {
+            foreach inode_block [[$inode_dom selectNodes ./blocks] childNodes] {
+                set block_id [$inode_block selectNodes string(./id)]
+                set block_genstamp [$inode_block selectNodes string(./genstamp)]
+                set block_bytes [$inode_block selectNodes string(./numBytes)]
 
-        # insert data into the tablelist
-        .pw.inode_detail.tablelist insert end $inode
+                set inode_block $inode
+                lappend inode_block $block_id $block_genstamp $block_bytes
+
+                .pw.inode_detail.tablelist insert end $inode_block
+            }
+        } else {
+            .pw.inode_detail.tablelist insert end $inode
+        }
     }
 }
 
@@ -263,17 +285,24 @@ proc load_fsimage_ui {} {
         # clear DOM doc - free memory
         $fsimage_dom_root delete
 
-        # expand the panedwindow widget
+        # layout the panedwindow widget
         grid .pw -row 0 -column 0 -sticky nsew
         .pw add .pw.fsimage_info
         .pw add .pw.inode_detail
-        grid rowconfigure . 0 -weight 1
-        grid columnconfigure . 0 -weight 1
     }
-
 }
 
 # main UI
+
+grid rowconfigure . 0 -weight 1
+grid columnconfigure . 0 -weight 1
+
+# set up status update bar - not used yet
+entry .status -justify left
+.status configure -state readonly
+grid .status -row 1 -column 0 -sticky sew
+
+# set up menu
 menu .mbar
 . configure -menu .mbar
 
