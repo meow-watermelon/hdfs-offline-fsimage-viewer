@@ -1,5 +1,6 @@
 #!/usr/bin/env tclsh
 
+package require log
 package require Tk
 package require tablelist
 package require tdom
@@ -12,22 +13,20 @@ wm minsize . 900 600
 # GLOBAL PROCS #
 ################
 
+# log progress update in terminal
+proc log_progress {debug_level log_message} {
+    set log_time [clock format [clock seconds]]
+    set log_level [string toupper $debug_level]
+
+    puts "$log_time - $log_level - $log_message"
+}
+
 # entry insert proc
 proc entry_insert {entry_name value} {
 	$entry_name configure -state normal
 	$entry_name delete 0 end
 	$entry_name insert end $value
 	$entry_name configure -state readonly -readonlybackground white
-}
-
-# status insert proc
-proc status_insert {widget status_flag status_message} {
-    set status_colors [dict create "ok" "green" "warning" "yellow" "error" "red"]
-
-    $widget configure -state normal
-    $widget delete 0 end
-    $widget insert end $status_message
-    $widget configure -state readonly -readonlybackground white -foreground [dict get $status_colors $status_flag]
 }
 
 # load fsimage XML file and return the DOM object
@@ -227,7 +226,7 @@ proc load_fsimage_inode_details_ui {fsimage_dom_root} {
         }
 
         # handle blocks information and insert data into tablelist
-        if {[$inode_dom selectNodes ./blocks] != ""} {
+        if {![string equal [$inode_dom selectNodes ./blocks] ""]} {
             foreach inode_block [[$inode_dom selectNodes ./blocks] childNodes] {
                 set block_id [$inode_block selectNodes string(./id)]
                 set block_genstamp [$inode_block selectNodes string(./genstamp)]
@@ -248,8 +247,12 @@ proc load_fsimage_inode_details_ui {fsimage_dom_root} {
 proc load_fsimage_ui {} {
     set fsimage_xml_file_path [get_fsimage_xml_file_path]
 
-    if {[info exists fsimage_xml_file_path] == 1 && $fsimage_xml_file_path != ""} {
+    if {[info exists fsimage_xml_file_path] == 1 && [string equal $fsimage_xml_file_path ""] == 0} {
+        log_progress "info" "FSImage File Path: $fsimage_xml_file_path"
+
+        log_progress "info" "Loading XML data into memory."
         set fsimage_dom_root [get_xml_dom $fsimage_xml_file_path]
+        log_progress "info" "XML data loaded."
 
         # destroy panedwindow widget if exists already
         if {[winfo exists .pw] == 1} {
@@ -268,22 +271,28 @@ proc load_fsimage_ui {} {
         grid columnconfigure .pw.fsimage_info 0 -weight 1
 
         # version section UI
+        log_progress "info" "Rendering Version Section UI."
         set fsimage_version_dict [get_fsimage_version $fsimage_dom_root]
         load_fsimage_version_ui $fsimage_version_dict
 
         # name section UI
+        log_progress "info" "Rendering Name Section UI."
         set fsimage_name_dict [get_fsimage_name $fsimage_dom_root]
         load_fsimage_name_ui $fsimage_name_dict
 
         # inode section UI
+        log_progress "info" "Rendering INode Section UI."
         set fsimage_inode_dict [get_fsimage_inode $fsimage_dom_root]
         load_fsimage_inode_ui $fsimage_inode_dict
 
         # inode details section UI
+        log_progress "info" "Rendering INode Details Section UI."
         load_fsimage_inode_details_ui $fsimage_dom_root
 
+        log_progress "info" "Deleting XML DOM tree."
         # clear DOM doc - free memory
         $fsimage_dom_root delete
+        log_progress "info" "XML DOM tree deleted."
 
         # layout the panedwindow widget
         grid .pw -row 0 -column 0 -sticky nsew
@@ -296,11 +305,6 @@ proc load_fsimage_ui {} {
 
 grid rowconfigure . 0 -weight 1
 grid columnconfigure . 0 -weight 1
-
-# set up status update bar - not used yet
-entry .status -justify left
-.status configure -state readonly
-grid .status -row 1 -column 0 -sticky sew
 
 # set up menu
 menu .mbar
