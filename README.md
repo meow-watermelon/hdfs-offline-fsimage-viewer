@@ -49,7 +49,7 @@ The current code is tested and passed in the following environment:
 2. ~~Add progress status update in the UI when triggering events. This task is adjusted to print progress status in terminal.~~
 3. Add feature to load HDFS FSImage file directly. This needs local Java + Hadoop installation.
 4. Add feature to search particular entry in the **INode Details Section**.
-5. ~~Add block information for each inode if the object type is FILE.~~
+5. ~~Add block information for each inode if the object type is FILE.~~ DONE
 6. Add feature to export inode information as a TSV file.
 7. Add edit feature(TBD) for FSImage XML file.
 
