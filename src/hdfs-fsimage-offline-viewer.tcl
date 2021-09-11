@@ -1,5 +1,6 @@
 #!/usr/bin/env tclsh
 
+package require csv
 package require log
 package require Tk
 package require tablelist
@@ -47,6 +48,14 @@ proc get_fsimage_xml_file_path {} {
     set fsimage_xml_file_path [tk_getOpenFile -title "Open a fsimage XML file" -initialdir $env(HOME)]
 
     return $fsimage_xml_file_path
+}
+
+# get inode details TSV file path from getSaveFile
+proc get_inode_tsv_file_path {} {
+    global env
+    set inode_tsv_file_path [tk_getSaveFile -title "Save an INode TSV file" -initialdir $env(HOME)]
+
+    return $inode_tsv_file_path
 }
 
 ####################
@@ -298,6 +307,33 @@ proc load_fsimage_ui {} {
         grid .pw -row 0 -column 0 -sticky nsew
         .pw add .pw.fsimage_info
         .pw add .pw.inode_detail
+
+        # enable the save_inode_tsv menu
+        .mbar.file entryconfigure 1 -state normal
+    }
+}
+
+proc save_inode_tsv {} {
+    set inode_tsv_file_path [get_inode_tsv_file_path]
+
+    if {[info exists inode_tsv_file_path] == 1 && [string equal $inode_tsv_file_path ""] == 0} {
+        log_progress "info" "INode TSV File Path: $inode_tsv_file_path"
+
+        log_progress "info" "Writing INode entry to $inode_tsv_file_path"
+        set inode_tsv_file_channel [open $inode_tsv_file_path w]
+        log_progress "info" "INode TSV File Channel $inode_tsv_file_channel opened."
+
+        set title {"ID" "Name" "Type" "Modification Time" "Access Time" "Permission" "Name Quota" "Space Quota" "Replication" "Preferred Block Size" "Storage Policy ID" "Block ID" "Block GenStamp" "Block Bytes"}
+        puts $inode_tsv_file_channel [::csv::join $title "\t"]
+
+        foreach inode_entry [.pw.inode_detail.tablelist get 0 end] {
+            puts $inode_tsv_file_channel [::csv::join $inode_entry "\t"]
+        }
+
+        close $inode_tsv_file_channel
+        log_progress "info" "INode TSV File Channel $inode_tsv_file_channel closed."
+
+        tk_messageBox -message "INode TSV file $inode_tsv_file_path saved." -type ok -icon info
     }
 }
 
@@ -313,5 +349,6 @@ menu .mbar
 .mbar add cascade -label File -menu .mbar.file -underline 0
 menu .mbar.file -tearoff 0
 .mbar.file add command -label "Open XML File" -command load_fsimage_ui
+.mbar.file add command -label "Save INode Details as TSV File" -state disabled -command save_inode_tsv
 .mbar.file add separator
 .mbar.file add command -label "Exit" -command exit

@@ -43,6 +43,10 @@ The current code is tested and passed in the following environment:
 
 ![](screenshots/load-fsimage-xml.png)
 
+### Save INode Details to a TSV File
+
+![](screenshots/save-inode-tsv.png)
+
 ## TODO
 
 1. ~~Make each labelframe area size-tunable.~~ DONE
@@ -50,7 +54,7 @@ The current code is tested and passed in the following environment:
 3. Add feature to load HDFS FSImage file directly. This needs local Java + Hadoop installation.
 4. Add feature to search particular entry in the **INode Details Section**.
 5. ~~Add block information for each inode if the object type is FILE.~~ DONE
-6. Add feature to export inode information as a TSV file.
+6. ~~Add feature to export inode information as a TSV file.~~ DONE
 7. Add edit feature(TBD) for FSImage XML file.
 
 ## Reference
