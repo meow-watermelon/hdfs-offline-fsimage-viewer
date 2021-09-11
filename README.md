@@ -12,8 +12,6 @@ The goal is to create a local use and cross-platform GUI program to view / edit 
 
 This project is in **Alpha** phase. I work on this project in my spare time and features can be changed anytime. For more details please check the **CHANGELOG** file.
 
-It can only support loading XML file now.
-
 ## Requirements
 
 [Tcl](https://core.tcl-lang.org/tcl)
